@@ -26,9 +26,7 @@ public class UserController {
                                 .password(userDTO.getPassword())
                                 .build()
                 );
-        UserResponseDTO responseDTO = new UserResponseDTO(
-                newUser.getId(),newUser.getUsername());
-        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapToResponseDTO(newUser), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -41,20 +39,15 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        UserResponseDTO responseDTO = new UserResponseDTO(
-                user.getId(),user.getUsername()
-        );
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(mapToResponseDTO(user));
     }
 
     @GetMapping("/by-username/{username}")
     public ResponseEntity<UserResponseDTO> getUserByUserName(
             @PathVariable String username
-    ){
+    ) {
         User user = userService.getUserByUsername(username);
-        UserResponseDTO responseDTO = new UserResponseDTO(
-                user.getId(), user.getUsername());
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(mapToResponseDTO(user));
     }
 
     @PutMapping("/{id}")
@@ -66,9 +59,7 @@ public class UserController {
                         .username(userDTO.getUsername())
                         .build()
         );
-        UserResponseDTO responseDTO = new UserResponseDTO(
-                updatedUser.getId(), updatedUser.getUsername());
-        return ResponseEntity.ok(responseDTO);
+        return ResponseEntity.ok(mapToResponseDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
@@ -77,4 +68,10 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    private UserResponseDTO mapToResponseDTO(User user) {
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .build();
+    }
 }

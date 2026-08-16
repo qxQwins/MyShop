@@ -1,10 +1,10 @@
 package qwins.myshop.category;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly=true)
@@ -21,6 +21,10 @@ public class CategoryService {
                 .orElseThrow(
                         () -> new EntityNotFoundException("Category doesn't exist")
                 );
+    }
+
+    public Page<Category> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     @Transactional

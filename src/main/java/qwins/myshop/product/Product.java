@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import qwins.myshop.attribute.AttributeRule;
 import qwins.myshop.category.Category;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +29,7 @@ public class Product {
     private String name;
 
     @Column
-    private double price;
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
@@ -47,12 +50,10 @@ public class Product {
         Map<String, AttributeRule> rulesMap = category.getAllowedAttributes().stream()
                 .collect(Collectors.toMap(AttributeRule::getCode, rule -> rule));
 
-        // Проверяем каждый атрибут, который передал пользователь/фронтенд
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             String attributeCode = entry.getKey();
             Object attributeValue = entry.getValue();
 
-            // 1. Проверка: Разрешено ли вообще это свойство в данной категории?
             if (!rulesMap.containsKey(attributeCode)) {
                 throw new IllegalArgumentException(
                         String.format("Attribute '%s' cannot be used for category '%s'", attributeCode, category.getName())
@@ -61,7 +62,6 @@ public class Product {
 
             AttributeRule rule = rulesMap.get(attributeCode);
 
-            // 2. Проверка типов данных
             switch (rule.getType()) {
                 case NUMBER:
                     if (!(attributeValue instanceof Number)) {
