@@ -14,8 +14,11 @@ import qwins.myshop.user.dto.UserUpdateDTO;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO userDTO) {
@@ -26,7 +29,7 @@ public class UserController {
                                 .password(userDTO.getPassword())
                                 .build()
                 );
-        return new ResponseEntity<>(mapToResponseDTO(newUser), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponseDTO(newUser));
     }
 
     @GetMapping
@@ -39,7 +42,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(mapToResponseDTO(user));
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @GetMapping("/by-username/{username}")
@@ -47,7 +50,7 @@ public class UserController {
             @PathVariable String username
     ) {
         User user = userService.getUserByUsername(username);
-        return ResponseEntity.ok(mapToResponseDTO(user));
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @PutMapping("/{id}")
@@ -59,7 +62,7 @@ public class UserController {
                         .username(userDTO.getUsername())
                         .build()
         );
-        return ResponseEntity.ok(mapToResponseDTO(updatedUser));
+        return ResponseEntity.ok(new UserResponseDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
@@ -68,10 +71,4 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    private UserResponseDTO mapToResponseDTO(User user) {
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .build();
-    }
 }

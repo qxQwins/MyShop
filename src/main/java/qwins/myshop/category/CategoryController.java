@@ -2,8 +2,10 @@ package qwins.myshop.category;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import qwins.myshop.category.dto.CategoryCreateDTO;
 import qwins.myshop.category.dto.CategoryResponseDTO;
 
 @RestController
@@ -17,23 +19,26 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> addCategory(@RequestBody Category category) {
+    public ResponseEntity<CategoryResponseDTO> addCategory(@RequestBody CategoryCreateDTO dto) {
+        Category category = Category.builder()
+                .name(dto.getName())
+                .allowedAttributes(dto.getAllowedAttributes())
+                .build();
+
         Category newCategory = categoryService.addCategory(category);
-        return ResponseEntity.ok(mapToResponseDTO(newCategory));
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(mapToResponseDTO(newCategory));
     }
 
     @GetMapping
     public ResponseEntity<Page<CategoryResponseDTO>> getAllCategories(Pageable pageable) {
-        Page<Category> categoriesPage = categoryService.getAllCategories(pageable);
-        Page<CategoryResponseDTO> dtoPage = categoriesPage.map(this::mapToResponseDTO);
+        Page<CategoryResponseDTO> dtoPage = categoryService.getAllCategories(pageable).map(this::mapToResponseDTO);
         return ResponseEntity.ok(dtoPage);
     }
 
     private CategoryResponseDTO mapToResponseDTO(Category category) {
-        return CategoryResponseDTO.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .attributes(category.getAllowedAttributes())
-                .build();
+        return new CategoryResponseDTO(category);
     }
 }

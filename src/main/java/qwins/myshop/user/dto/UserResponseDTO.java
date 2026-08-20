@@ -1,13 +1,16 @@
 package qwins.myshop.user.dto;
 
 import lombok.*;
+import qwins.myshop.user.User;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class UserResponseDTO {
-    private Long id;
-    private String username;
+public record UserResponseDTO(
+        Long id,
+        String username
+) {
+    public UserResponseDTO(User user) {
+        this(
+                user.getId(),
+                user.getUsername()
+        );
+    }
 }

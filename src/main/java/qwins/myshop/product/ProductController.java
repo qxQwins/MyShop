@@ -20,7 +20,8 @@ public class ProductController {
 
     private final CategoryRepository categoryRepository;
 
-    public ProductController(ProductService productService, CategoryRepository categoryRepository, PrioritizedParameterNameDiscoverer prioritizedParameterNameDiscoverer) {
+    public ProductController(ProductService productService,
+                             CategoryRepository categoryRepository) {
         this.productService = productService;
         this.categoryRepository = categoryRepository;
     }
@@ -41,19 +42,21 @@ public class ProductController {
                         .build()
         );
 
-        return new ResponseEntity<>(mapToResponseDTO(product), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ProductResponseDTO(product));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable Long id) {
         Product product = productService.getProductById(id);
-        return ResponseEntity.ok(mapToResponseDTO(product));
+        return ResponseEntity.ok(new ProductResponseDTO(product));
     }
 
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(Pageable pageable) {
         Page<Product> productsPage = productService.getAllProducts(pageable);
-        Page<ProductResponseDTO> dtoPage = productsPage.map(this::mapToResponseDTO);
+        Page<ProductResponseDTO> dtoPage = productsPage.map(
+                product -> new ProductResponseDTO(product)
+        );
         return ResponseEntity.ok(dtoPage);
     }
 
@@ -62,25 +65,15 @@ public class ProductController {
             (@PathVariable Long id,
              @RequestBody Product updatedProduct) {
         productService.updateProduct(id, updatedProduct);
-        return ResponseEntity.ok(mapToResponseDTO(updatedProduct));
+        return ResponseEntity.ok(new ProductResponseDTO(updatedProduct));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
             @PathVariable Long id
-    ){
+    ) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
-    private ProductResponseDTO mapToResponseDTO(Product product) {
-        return ProductResponseDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .categoryName(product.getCategory().getName())
-                .attributes(product.getAttributes())
-                .build();
-    }
 }

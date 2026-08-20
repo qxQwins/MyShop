@@ -1,4 +1,4 @@
-package qwins.myshop.cart.items;
+package qwins.myshop.cart;
 
 import jakarta.persistence.*;
 import lombok.*;

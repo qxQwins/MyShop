@@ -2,7 +2,7 @@ package qwins.myshop.cart;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import qwins.myshop.cart.items.CartItem;
+import qwins.myshop.cart.dto.CartResponseDTO;
 
 
 @RestController
@@ -16,25 +16,25 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<Cart> getCartItems(@RequestParam Long userId) {
+    public ResponseEntity<CartResponseDTO> getCartItems(@RequestParam Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new CartResponseDTO(cart));
     }
 
     @PostMapping("/items")
-    public ResponseEntity<Cart> addCartItem(@RequestParam Long userId,
-                                            @RequestParam Long  productId,
+    public ResponseEntity<CartResponseDTO> addCartItem(@RequestParam Long userId,
+                                            @RequestParam Long productId,
                                             int quantity) {
         Cart cartWithNewItem = cartService.addProductToCart(userId, productId, quantity);
-        return ResponseEntity.ok(cartWithNewItem);
+        return ResponseEntity.ok(new CartResponseDTO(cartWithNewItem));
     }
 
     @PutMapping("/items")
-    public ResponseEntity<Cart> updateCartItem(@RequestParam Long userId,
-                                               @RequestParam Long  productId,
-                                               int quantity) {
+    public ResponseEntity<CartResponseDTO> updateCartItem(@RequestParam Long userId,
+                                                              @RequestParam Long productId,
+                                                              int quantity) {
         Cart updatedCart = cartService.updateProductQuantity(userId,productId,quantity);
-        return ResponseEntity.ok(updatedCart);
+        return ResponseEntity.ok(new CartResponseDTO(updatedCart));
     }
 
     @DeleteMapping("/items/{productId}")
@@ -45,8 +45,8 @@ public class CartController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteCartItems(@RequestBody Cart cart) {
-        cart.clearItems();
+    public ResponseEntity<Void> deleteCartItems(@RequestParam Long userId) {
+        cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
     }
 

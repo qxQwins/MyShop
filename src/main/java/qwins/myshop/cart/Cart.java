@@ -2,13 +2,10 @@ package qwins.myshop.cart;
 
 import jakarta.persistence.*;
 import lombok.*;
-import qwins.myshop.cart.items.CartItem;
-import qwins.myshop.product.Product;
 import qwins.myshop.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Entity
 @Table(name = "cart")
