@@ -1,6 +1,6 @@
 package qwins.myshop.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO userDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO userDTO) {
         User newUser =
                 userService.addUser(
                         User.builder()
@@ -56,7 +56,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody UserUpdateDTO userDTO) {
+            @Valid @RequestBody UserUpdateDTO userDTO) {
         User updatedUser = userService.updateUser(id,
                 User.builder()
                         .username(userDTO.getUsername())

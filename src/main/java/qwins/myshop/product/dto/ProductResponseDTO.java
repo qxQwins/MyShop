@@ -1,6 +1,5 @@
 package qwins.myshop.product.dto;
 
-import lombok.*;
 import qwins.myshop.product.Product;
 
 import java.math.BigDecimal;

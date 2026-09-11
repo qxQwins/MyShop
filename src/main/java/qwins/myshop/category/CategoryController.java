@@ -1,5 +1,6 @@
 package qwins.myshop.category;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> addCategory(@RequestBody CategoryCreateDTO dto) {
+    public ResponseEntity<CategoryResponseDTO> addCategory(@Valid @RequestBody CategoryCreateDTO categoryDTO) {
         Category category = Category.builder()
-                .name(dto.getName())
-                .allowedAttributes(dto.getAllowedAttributes())
+                .name(categoryDTO.getName())
+                .allowedAttributes(categoryDTO.getAllowedAttributes())
                 .build();
 
         Category newCategory = categoryService.addCategory(category);

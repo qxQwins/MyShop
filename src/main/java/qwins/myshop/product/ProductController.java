@@ -1,7 +1,7 @@
 package qwins.myshop.product;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.core.PrioritizedParameterNameDiscoverer;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import qwins.myshop.category.Category;
 import qwins.myshop.category.CategoryRepository;
-import qwins.myshop.product.dto.ProductCreateDTO;
+import qwins.myshop.product.dto.ProductRequestDTO;
 import qwins.myshop.product.dto.ProductResponseDTO;
 
 @RestController
@@ -27,7 +27,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductCreateDTO productDTO) {
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productDTO) {
         Category category = categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(
                 () -> new EntityNotFoundException("Category not found")
         );
@@ -54,17 +54,24 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(Pageable pageable) {
         Page<Product> productsPage = productService.getAllProducts(pageable);
-        Page<ProductResponseDTO> dtoPage = productsPage.map(
-                product -> new ProductResponseDTO(product)
-        );
+        Page<ProductResponseDTO> dtoPage = productsPage.map(ProductResponseDTO::new);
         return ResponseEntity.ok(dtoPage);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct
             (@PathVariable Long id,
-             @RequestBody Product updatedProduct) {
-        productService.updateProduct(id, updatedProduct);
+             @Valid @RequestBody ProductRequestDTO updatedProductDTO) {
+        Product updatedProduct = productService.updateProduct(id, Product.builder()
+                .name(updatedProductDTO.getName())
+                .description(updatedProductDTO.getDescription())
+                .price(updatedProductDTO.getPrice())
+                .category(categoryRepository.findById(updatedProductDTO.getCategoryId()).orElseThrow(
+                        () -> new EntityNotFoundException("Category not found")
+                ))
+                .attributes(updatedProductDTO.getAttributes())
+                .build()
+        );
         return ResponseEntity.ok(new ProductResponseDTO(updatedProduct));
     }
 
