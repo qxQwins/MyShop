@@ -7,9 +7,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import qwins.myshop.user.dto.UserCreateDTO;
-import qwins.myshop.user.dto.UserResponseDTO;
-import qwins.myshop.user.dto.UserUpdateDTO;
+import qwins.myshop.user.dto.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,6 +18,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
+        AuthResponseDTO response = userService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO userDTO) {
         User newUser =
@@ -27,6 +32,7 @@ public class UserController {
                         User.builder()
                                 .username(userDTO.getUsername())
                                 .password(userDTO.getPassword())
+                                .role(Role.USER)
                                 .build()
                 );
         return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponseDTO(newUser));

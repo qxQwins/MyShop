@@ -5,12 +5,14 @@ import qwins.myshop.user.User;
 
 public record UserResponseDTO(
         Long id,
-        String username
+        String username,
+        String role
 ) {
     public UserResponseDTO(User user) {
         this(
                 user.getId(),
-                user.getUsername()
+                user.getUsername(),
+                String.valueOf(user.getRole())
         );
     }
 }

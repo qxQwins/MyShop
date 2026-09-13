@@ -1,10 +1,15 @@
 package qwins.myshop.user;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import qwins.myshop.security.JwtService;
+import qwins.myshop.user.dto.AuthRequestDTO;
+import qwins.myshop.user.dto.AuthResponseDTO;
 
 @Service
 @Transactional(readOnly = true)
@@ -12,8 +17,16 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    private final JwtService jwtService;
+
+    public UserService(UserRepository userRepository,
+                       BCryptPasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -62,6 +75,19 @@ public class UserService {
             );
         }
         userRepository.deleteById(id);
+    }
+
+    public AuthResponseDTO login(AuthRequestDTO request) {
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new IllegalArgumentException("Incorrect username or password"));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect username or password");
+        }
+
+        String token = jwtService.generateToken(user.getUsername(), user.getRole().name(), user.getId());
+
+        return new AuthResponseDTO(token);
     }
 
 }
