@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "BearerAuth")
 public class OrderController {
 
     private final OrderService orderService;

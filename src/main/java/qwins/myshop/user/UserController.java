@@ -26,15 +26,9 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserCreateDTO userDTO) {
-        User newUser =
-                userService.addUser(
-                        User.builder()
-                                .username(userDTO.getUsername())
-                                .password(userDTO.getPassword())
-                                .role(Role.USER)
-                                .build()
-                );
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserCreateDTO userDTO) {
+        User newUser = userService.registerUser(userDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponseDTO(newUser));
     }
 

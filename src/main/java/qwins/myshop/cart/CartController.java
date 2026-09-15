@@ -7,6 +7,7 @@ import qwins.myshop.cart.dto.CartResponseDTO;
 
 @RestController
 @RequestMapping("/api/cart")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "BearerAuth")
 public class CartController {
 
     private final CartService cartService;

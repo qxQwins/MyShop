@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import qwins.myshop.security.JwtService;
 import qwins.myshop.user.dto.AuthRequestDTO;
 import qwins.myshop.user.dto.AuthResponseDTO;
+import qwins.myshop.user.dto.UserCreateDTO;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,9 +31,29 @@ public class UserService {
     }
 
     @Transactional
-    public User addUser(User user) {
-        user.setId(null);
+    public User registerUser(UserCreateDTO dto) {
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+
+        User user = User.builder()
+                .username(dto.getUsername())
+                .password(hashedPassword)
+                .role(Role.USER)
+                .build();
+
         return userRepository.save(user);
+    }
+
+    public AuthResponseDTO login(AuthRequestDTO request) {
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new IllegalArgumentException("Incorrect username or password"));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect username or password");
+        }
+
+        String token = jwtService.generateToken(user.getUsername(), user.getRole().name(), user.getId());
+
+        return new AuthResponseDTO(token);
     }
 
     public User getUserById(Long id) {
@@ -75,19 +96,6 @@ public class UserService {
             );
         }
         userRepository.deleteById(id);
-    }
-
-    public AuthResponseDTO login(AuthRequestDTO request) {
-        User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new IllegalArgumentException("Incorrect username or password"));
-
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Incorrect username or password");
-        }
-
-        String token = jwtService.generateToken(user.getUsername(), user.getRole().name(), user.getId());
-
-        return new AuthResponseDTO(token);
     }
 
 }

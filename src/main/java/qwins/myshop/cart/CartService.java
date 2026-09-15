@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import qwins.myshop.product.Product;
 import qwins.myshop.product.ProductService;
+import qwins.myshop.user.User;
+import qwins.myshop.user.UserService;
 
 @Service
 @Transactional
@@ -11,18 +13,21 @@ public class CartService {
 
     private final CartRepository cartRepository;
 
+    private final UserService userService;
+
     private final ProductService productService;
 
-    public CartService(CartRepository cartRepository, ProductService productService) {
+    public CartService(CartRepository cartRepository, UserService userService, ProductService productService) {
         this.cartRepository = cartRepository;
+        this.userService = userService;
         this.productService = productService;
     }
 
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
-                    Cart newCart = Cart.builder()
-                            .build();
+                    User user = userService.getUserById(userId);
+                    Cart newCart = Cart.builder().user(user).build();
                     return cartRepository.save(newCart);
                 });
     }
